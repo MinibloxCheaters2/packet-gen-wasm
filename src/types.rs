@@ -1,5 +1,20 @@
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Syntax {
+    Proto2,
+    Proto3,
+}
+impl Syntax {
+    pub fn value(&self) -> &str {
+        match self {
+            Syntax::Proto2 => "proto2",
+            Syntax::Proto3 => "proto3",
+        }
+    }
+}
+
 #[wasm_bindgen(getter_with_clone, inspectable)]
 #[derive(Clone)]
 pub struct MappedField {
@@ -28,7 +43,7 @@ pub struct MappedMap {
 pub struct MappedMessage {
     #[wasm_bindgen(js_name = "typeName")]
     pub type_name: String,
-    pub syntax: String,
+    pub syntax: Syntax,
     pub fields: Vec<MappedField>,
 }
 

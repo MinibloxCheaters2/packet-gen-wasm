@@ -531,7 +531,7 @@ pub fn extract_bundle(source: &str) -> Result<ParseBundleResult, String> {
             if let Some(fc) = find_fields_call(body, &runtime) {
                 let fields = fields_to_vec(fc, &name_mapping);
                 let syntax = runtime_syntax::find_runtime_syntax(body, &runtime)
-                    .unwrap_or_else(|| "proto3".to_string());
+                    .unwrap_or_else(|| Syntax::Proto3);
                 messages.insert(
                     tn.clone(),
                     MappedMessage {
@@ -581,7 +581,7 @@ pub fn extract_bundle(source: &str) -> Result<ParseBundleResult, String> {
             {
                 let fields = fields_to_vec(fc, &name_mapping);
                 let syntax = runtime_syntax::find_runtime_syntax(body, runtime)
-                    .unwrap_or_else(|| "proto3".to_string());
+                    .unwrap_or_else(|| Syntax::Proto3);
                 messages.insert(
                     tn.clone(),
                     MappedMessage {

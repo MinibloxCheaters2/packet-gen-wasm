@@ -1,20 +1,17 @@
 use oxc_ast::ast::*;
 
 use crate::extract;
+use crate::types::Syntax;
 use crate::util;
 
-pub fn find_runtime_syntax(body: &[Statement], class_name: &str) -> Option<String> {
+pub fn find_runtime_syntax(body: &[Statement], class_name: &str) -> Option<Syntax> {
     let _class = extract::find_class(body, class_name)?;
 
     let runtime_id = find_runtime_identifier(body, class_name);
     if let Some(id) = runtime_id
         && let Some(resolved) = resolve_runtime_value(body, &id, 0)
     {
-        match resolved.as_str() {
-            "proto2" => return Some("proto2".to_string()),
-            "proto3" => return Some("proto3".to_string()),
-            _ => {}
-        }
+        return Some(resolved);
     }
 
     Some(infer_syntax_from_fields(_class))
@@ -53,7 +50,7 @@ fn find_runtime_identifier(body: &[Statement], class_name: &str) -> Option<Strin
     None
 }
 
-fn resolve_runtime_value(body: &[Statement], var_name: &str, depth: u32) -> Option<String> {
+fn resolve_runtime_value(body: &[Statement], var_name: &str, depth: u32) -> Option<Syntax> {
     if depth > 5 {
         return None;
     }
@@ -78,25 +75,29 @@ fn resolve_runtime_value(body: &[Statement], var_name: &str, depth: u32) -> Opti
 
             if let Expression::Identifier(ident) = init {
                 let name = ident.name.as_str();
-                if name == "proto2" || name == "proto3" {
-                    return Some(name.to_string());
-                }
-                return resolve_runtime_value(body, name, depth + 1);
+                return match name {
+                    "proto2" => Some(Syntax::Proto2),
+                    "proto3" => Some(Syntax::Proto3),
+                    _ => resolve_runtime_value(body, name, depth + 1),
+                };
             }
 
             if let Expression::CallExpression(call) = init
                 && let Some(arg) = call.arguments.first()
                 && let Some(val) = arg.as_expression().and_then(|e| util::get_string_value(e))
-                && (val == "proto2" || val == "proto3")
             {
-                return Some(val.to_string());
+                return match val {
+                    "proto2" => Some(Syntax::Proto2),
+                    "proto3" => Some(Syntax::Proto3),
+                    _ => None,
+                };
             }
         }
     }
     None
 }
 
-fn infer_syntax_from_fields(class: &Class) -> String {
+fn infer_syntax_from_fields(class: &Class) -> Syntax {
     for member in &class.body.body {
         let sb = match member {
             ClassElement::StaticBlock(sb) => sb,
@@ -171,10 +172,10 @@ fn infer_syntax_from_fields(class: &Class) -> String {
             }
 
             if has_opt && non_opt_non_repeated {
-                return "proto2".to_string();
+                return Syntax::Proto2;
             }
-            return "proto3".to_string();
+            return Syntax::Proto3;
         }
     }
-    "proto3".to_string()
+    Syntax::Proto3
 }
