@@ -1,3 +1,3 @@
 #!/usr/bin/env fish
 
-wasm-pack build --scope wq2
+wasm-pack build --target web --scope wq2
