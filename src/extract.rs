@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use oxc_ast::ast::*;
 
+use crate::runtime_syntax;
 use crate::types::*;
 use crate::util;
 
@@ -125,7 +126,7 @@ fn get_obj_prop<'a>(obj: &'a ObjectExpression<'a>, name: &str) -> Option<&'a Obj
     })
 }
 
-fn find_class<'a>(body: &'a [Statement<'a>], name: &str) -> Option<&'a Class<'a>> {
+pub(crate) fn find_class<'a>(body: &'a [Statement<'a>], name: &str) -> Option<&'a Class<'a>> {
     for stmt in body {
         if let Statement::VariableDeclaration(vd) = stmt {
             for decl in &vd.declarations {
@@ -529,10 +530,13 @@ pub fn extract_bundle(source: &str) -> Result<ParseBundleResult, String> {
 
             if let Some(fc) = find_fields_call(body, &runtime) {
                 let fields = fields_to_vec(fc, &name_mapping);
+                let syntax = runtime_syntax::find_runtime_syntax(body, &runtime)
+                    .unwrap_or_else(|| "proto3".to_string());
                 messages.insert(
                     tn.clone(),
                     MappedMessage {
                         type_name: tn,
+                        syntax,
                         fields,
                     },
                 );
@@ -576,10 +580,13 @@ pub fn extract_bundle(source: &str) -> Result<ParseBundleResult, String> {
                 && let Some(fc) = find_fields_call(body, runtime)
             {
                 let fields = fields_to_vec(fc, &name_mapping);
+                let syntax = runtime_syntax::find_runtime_syntax(body, runtime)
+                    .unwrap_or_else(|| "proto3".to_string());
                 messages.insert(
                     tn.clone(),
                     MappedMessage {
                         type_name: tn.clone(),
+                        syntax,
                         fields,
                     },
                 );

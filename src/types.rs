@@ -28,6 +28,7 @@ pub struct MappedMap {
 pub struct MappedMessage {
     #[wasm_bindgen(js_name = "typeName")]
     pub type_name: String,
+    pub syntax: String,
     pub fields: Vec<MappedField>,
 }
 
