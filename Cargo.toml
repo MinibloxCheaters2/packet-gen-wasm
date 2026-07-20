@@ -3,7 +3,7 @@ name = "packet-gen-wasm"
 description = "WASM module for Vape Rewrite that supplies data for creating dummy enums/messages"
 repository = "git+https://github.com/MinibloxCheaters2/packet-gen-wasm.git"
 license = "AGPL-3.0-only"
-version = "0.0.1+3.46.137"
+version = "0.0.2+3.46.137"
 edition = "2024"
 publish = false
 
