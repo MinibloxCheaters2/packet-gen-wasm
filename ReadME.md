@@ -15,7 +15,7 @@ The way we do it is...
 
 We just automatically derive the data from the packets we need using this WASM Module.
 All we need to generate dummy messages is the fields list, packet name, and runtime, and enums just needs the enum name and entries.
-So, that's what this does. You just give it the packet name and runtime, and it emits the fields list or enum entries for you.
+So, that's what this does. You just give it Miniblox's index-{hash}.js bundle, and it emits the fields list and enum entries for you.
 If you want to see this in depth, see [Vape Rewrite].
 
 
